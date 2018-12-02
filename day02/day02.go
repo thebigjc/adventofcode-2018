@@ -54,7 +54,7 @@ func part2() string {
 
 	sc := bufio.NewScanner(f)
 
-	ids := make(map[string]string)
+	ids := make(map[string]bool)
 
 	for sc.Scan() {
 		l := sc.Text()
@@ -65,11 +65,10 @@ func part2() string {
 		}
 
 		for k := range uniq {
-			if v, ok := ids[k]; ok {
-				log.Printf("Found %s in %s and %s", k, v, l)
+			if ids[k] {
 				return k
 			}
-			ids[k] = l
+			ids[k] = true
 		}
 	}
 
