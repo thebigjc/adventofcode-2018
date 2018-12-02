@@ -2,16 +2,24 @@ package main
 
 import (
 	"bufio"
+	"io"
 	"log"
 	"os"
 )
+
+func mustClose(f io.Closer) {
+	err := f.Close()
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
 
 func part1() int {
 	f, err := os.OpenFile("day02.txt", os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		log.Fatalf("unable to open input: %v", err)
 	}
-	defer f.Close()
+	defer mustClose(f)
 
 	sc := bufio.NewScanner(f)
 	twos := 0
@@ -23,23 +31,18 @@ func part1() int {
 		for _, i := range l {
 			freq[i]++
 		}
-		var two bool
-		var three bool
+		var two int
+		var three int
 		for _, v := range freq {
 			if v == 2 {
-				two = true
+				two = 1
 			}
 			if v == 3 {
-				three = true
+				three = 1
 			}
 		}
-
-		if two {
-			twos++
-		}
-		if three {
-			threes++
-		}
+		twos += two
+		threes += three
 	}
 
 	return twos * threes
@@ -50,7 +53,7 @@ func part2() string {
 	if err != nil {
 		log.Fatalf("unable to open input: %v", err)
 	}
-	defer f.Close()
+	defer mustClose(f)
 
 	sc := bufio.NewScanner(f)
 
