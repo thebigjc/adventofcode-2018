@@ -2,11 +2,10 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"log"
 	"os"
-	"regexp"
-	"strconv"
 )
 
 func mustClose(f io.Closer) {
@@ -21,6 +20,14 @@ type point struct {
 	y int
 }
 
+type row struct {
+	id int
+	l  int
+	t  int
+	w  int
+	h  int
+}
+
 func part1() (int, int) {
 	f, err := os.OpenFile("day03.txt", os.O_RDONLY, os.ModePerm)
 	if err != nil {
@@ -30,54 +37,36 @@ func part1() (int, int) {
 
 	sc := bufio.NewScanner(f)
 
-	// #1 @ 108,350: 22x29
-	r := regexp.MustCompile(`\#(\d+) @ (\d+),(\d+): (\d+)x(\d+)`)
-
-	fabric := make(map[point]int, 0)
-	owners := make(map[point]int, 0)
+	fabric := make(map[point]int)
+	owners := make(map[point]int)
 	ids := make(map[int]bool)
 
 	for sc.Scan() {
 		line := sc.Text()
-		// #1 @ 108,350: 22x29
-		s := r.FindStringSubmatch(line)
+		var r row
+		_, err := fmt.Sscanf(line, "#%d @ %d,%d: %dx%d", &r.id, &r.l, &r.t, &r.w, &r.h)
 
-		id, err := strconv.Atoi(s[1])
 		if err != nil {
-			log.Fatalf("Couldn't parse id: %s, %v", s[1], err)
+			panic(err)
 		}
-		ids[id] = true
+		ids[r.id] = true
 
-		l, err := strconv.Atoi(s[2])
-		if err != nil {
-			log.Fatalf("Couldn't parse left:%s, %v", s[2], err)
-		}
-		t, err := strconv.Atoi(s[3])
-		if err != nil {
-			log.Fatalf("Couldn't parse top:%s, %v", s[3], err)
-		}
-		w, err := strconv.Atoi(s[4])
-		if err != nil {
-			log.Fatalf("Couldn't parse width:%s, %v", s[4], err)
-		}
-		h, err := strconv.Atoi(s[5])
-		if err != nil {
-			log.Fatalf("Couldn't parse height:%s, %v", s[5], err)
-		}
-		for i := l; i < l+w; i++ {
-			for j := t; j < t+h; j++ {
-				p := point{i, j}
+		for x := r.l; x < r.l+r.w; x++ {
+			for y := r.t; y < r.t+r.h; y++ {
+				p := point{x, y}
 				fabric[p]++
 
 				if fabric[p] > 1 {
-					delete(ids, id)
+					delete(ids, r.id)
 					delete(ids, owners[p])
 				}
 
-				owners[p] = id
+				owners[p] = r.id
 			}
 		}
 	}
+
+	log.Printf("There are %d ids left", len(ids))
 
 	if len(ids) > 1 {
 		panic("Too many ids")
