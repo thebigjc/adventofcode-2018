@@ -112,7 +112,7 @@ func main() {
 		}
 	}
 
-	areas := make(map[int]int, len(points))
+	areas := make([]int, len(points))
 	//log.Printf("Grid points:%d", len(grid))
 	for x, row := range grid {
 		for y, v := range row {
