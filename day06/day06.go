@@ -1,9 +1,12 @@
 package main
 
 import (
+	"flag"
 	"io/ioutil"
 	"log"
 	"math"
+	"os"
+	"runtime/pprof"
 	"strconv"
 	"strings"
 )
@@ -25,6 +28,17 @@ func distance(x1, y1, x2, y2 int) int {
 }
 
 func main() {
+	var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+
 	bs, err := ioutil.ReadFile("day06.txt")
 
 	if err != nil {
@@ -65,56 +79,59 @@ func main() {
 		}
 	}
 
-	log.Printf("minX: %d, minY: %d, maxX: %d, maxY: %d", minX, minY, maxX, maxY)
-	l := minX - (maxX - minX)
-	t := minY - (maxY - minY)
-	r := maxX + (maxX - minX)
-	b := maxY + (maxY - minY)
-	grid := make(map[point]int)
+	//log.Printf("minX: %d, minY: %d, maxX: %d, maxY: %d", minX, minY, maxX, maxY)
+	l := minX - len(points)
+	t := minY - len(points)
+	r := maxX + len(points)
+	b := maxY + len(points)
+	grid := make([][]int, (r - l))
 	regionSize := 0
 
-	log.Printf("Points: %d, Width: %d, Height: %d", len(points), r-l, b-t)
+	//log.Printf("Points: %d, Width: %d, Height: %d", len(points), r-l, b-t)
 	for x := l; x < r; x++ {
+		grid[x-l] = make([]int, b-t)
 		for y := t; y < b; y++ {
-			gp := point{x, y}
 			minD := math.MaxInt32
 			totalD := 0
+			currentBest := 0
 			for i, p := range points {
 				d := distance(x, y, p.x, p.y)
 				totalD += d
 				if d == minD {
-					grid[gp] = -1
+					currentBest = -1
 				}
 				if d < minD {
 					minD = d
-					grid[gp] = i
+					currentBest = i
 				}
 			}
+			grid[x-l][y-t] = currentBest
 			if totalD < 10000 {
 				regionSize++
 			}
 		}
 	}
 
-	areas := make(map[int]int)
-	log.Printf("Grid points:%d", len(grid))
-	for k, v := range grid {
-		if v == -1 {
-			// Tie
-			continue
+	areas := make(map[int]int, len(points))
+	//log.Printf("Grid points:%d", len(grid))
+	for x, row := range grid {
+		for y, v := range row {
+			if v == -1 {
+				// Tie
+				continue
+			}
+			// Blacklisted areas in 'infinite' space
+			if areas[v] == -1 {
+				continue
+			}
+			if x+l < minX || y+t < minY || x+l > maxX || y+t > maxY {
+				//log.Printf("Point %d is out", v)
+				areas[v] = -1
+				continue
+			}
+			areas[v]++
 		}
-		// Blacklisted areas in 'infinite' space
-		if areas[v] == -1 {
-			continue
-		}
-		if k.x < minX || k.y < minY || k.x > maxX || k.y > maxY {
-			log.Printf("Point %d is out", v)
-			areas[v] = -1
-			continue
-		}
-		areas[v]++
 	}
-
 	maxArea := 0
 	for _, v := range areas {
 		if v > maxArea {
