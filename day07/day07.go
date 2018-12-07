@@ -17,7 +17,6 @@ type node struct {
 
 func (n *node) start(time int) {
 	n.completionTime = time + int(n.name-'A'+1) + 60
-	log.Printf("Starting %c at %d until %d", n.name, time, n.completionTime)
 }
 func makeNode(name rune) *node {
 	return &node{name, nil, 0, 0}
