@@ -93,19 +93,19 @@ func main() {
 		for y := t; y < b; y++ {
 			minD := math.MaxInt32
 			totalD := 0
-			currentBest := 0
+			best := 0
 			for i, p := range points {
 				d := distance(x, y, p.x, p.y)
 				totalD += d
 				if d == minD {
-					currentBest = -1
+					best = -1
 				}
 				if d < minD {
 					minD = d
-					currentBest = i
+					best = i
 				}
 			}
-			grid[x-l][y-t] = currentBest
+			grid[x-l][y-t] = best
 			if totalD < 10000 {
 				regionSize++
 			}
