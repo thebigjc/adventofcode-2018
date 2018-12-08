@@ -16,11 +16,9 @@ type point struct {
 	y int
 }
 
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
+func abs(n int) int {
+	y := n >> 63
+	return (n ^ y) - y
 }
 
 func distance(x1, y1, x2, y2 int) int {

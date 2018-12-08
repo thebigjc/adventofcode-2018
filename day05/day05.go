@@ -7,11 +7,9 @@ import (
 	"math"
 )
 
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
+func abs(n int) int {
+	y := n >> 63
+	return (n ^ y) - y
 }
 
 func collapse(e *list.Element) bool {
