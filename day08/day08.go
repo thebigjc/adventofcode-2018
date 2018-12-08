@@ -26,16 +26,15 @@ func (s States) String() string {
 }
 
 type state struct {
-	state         States
-	childNodes    int
-	metadatas     int
-	totalChildren int
-	value         int
-	children      []*state
+	state      States
+	childNodes int
+	metadatas  int
+	value      int
+	children   []*state
 }
 
 func newState() *state {
-	return &state{numChildren, 0, 0, 0, 0, nil}
+	return &state{numChildren, 0, 0, 0, nil}
 }
 
 func main() {
@@ -59,7 +58,6 @@ func main() {
 		switch curState.state {
 		case numChildren:
 			curState.childNodes = num
-			curState.totalChildren = num
 			curState.state = numMetadata
 
 		case numMetadata:
@@ -75,11 +73,11 @@ func main() {
 			}
 		case metadata:
 			sum += num
-			if curState.totalChildren == 0 {
+			if len(curState.children) == 0 {
 				curState.value += num
 			} else {
 				offset := num - 1
-				if offset >= 0 && offset < curState.totalChildren {
+				if offset >= 0 && offset < len(curState.children) {
 					v := curState.children[offset].value
 					curState.value += v
 				}
