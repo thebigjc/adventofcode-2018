@@ -1,1 +1,6 @@
 *.code-workspace
+*.dot
+*.exe
+*.o
+*.pdf
+*.prof
