@@ -138,7 +138,7 @@ func part2() {
 			S = S[1:]
 		}
 
-		sort.Slice(workQueue, func(i, j int) bool { return workQueue[i].completionTime < workQueue[i].completionTime })
+		sort.Slice(workQueue, func(i, j int) bool { return workQueue[i].completionTime < workQueue[j].completionTime })
 	}
 
 	log.Printf("Time: %d", time)
