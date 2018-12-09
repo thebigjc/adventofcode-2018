@@ -16,15 +16,6 @@ const (
 	metadata
 )
 
-func (s States) String() string {
-	names := [...]string{
-		"numChildren",
-		"numMetadata",
-		"metadata",
-	}
-	return names[s]
-}
-
 type state struct {
 	state      States
 	childNodes int
