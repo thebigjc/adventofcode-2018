@@ -58,3 +58,10 @@ func BenchmarkInputRing(b *testing.B) {
 		part1Ring(477, 70851)
 	}
 }
+
+func BenchmarkInputRingNoAlloc(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		part1RingNoAlloc(477, 70851)
+	}
+}

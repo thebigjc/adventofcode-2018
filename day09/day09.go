@@ -38,8 +38,7 @@ func insertMarble(l *list.List, c *list.Element, marble int, score *int) *list.E
 	return l.InsertAfter(marble, clockwise(l, c))
 }
 
-func insertMarbleRing(c *ring.Ring, marble *ring.Ring, score *int) *ring.Ring {
-	mv := marble.Value.(int)
+func insertMarbleRing(c *ring.Ring, marble *ring.Ring, mv int, score *int) *ring.Ring {
 	if (mv % 23) == 0 {
 		c = c.Move(-8)
 
@@ -82,7 +81,26 @@ func part1Ring(players, last int) int {
 	current := &marbles[0]
 	for i := 1; i <= last; i++ {
 		marbles[i].Value = i
-		current = insertMarbleRing(current, &marbles[i], &scores[i%players])
+		current = insertMarbleRing(current, &marbles[i], i, &scores[i%players])
+	}
+
+	maxScore := 0
+	for _, s := range scores {
+		if s > maxScore {
+			maxScore = s
+		}
+	}
+
+	return maxScore
+}
+
+func part1RingNoAlloc(players, last int) int {
+	current := &ring.Ring{Value: 0}
+	scores := make([]int, players)
+
+	for i := 1; i <= last; i++ {
+		marble := &ring.Ring{Value: i}
+		current = insertMarbleRing(current, marble, i, &scores[i%players])
 	}
 
 	maxScore := 0
