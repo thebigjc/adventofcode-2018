@@ -46,7 +46,7 @@ func doElves(recipes int) string {
 	needed := recipes*100 + 10
 
 	for needed > 0 {
-		if (needed % 10000) == 0 {
+		if (needed % 100000) == 0 {
 			log.Printf("Needed:%d", needed)
 		}
 
