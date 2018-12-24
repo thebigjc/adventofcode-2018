@@ -152,7 +152,7 @@ func gtir(a, b, c int, in registers) registers {
 }
 
 func gtirEmit(a, b, c int) string {
-	return fmt.Sprintf("out := 0\nif %d > r%d {\n\tout = 1\n} \n r%d = out", a, b, c)
+	return fmt.Sprintf("out := int64(0)\nif %d > r%d {\n\tout = 1\n} \n r%d = out", a, b, c)
 }
 
 func gtri(a, b, c int, in registers) registers {
@@ -165,7 +165,7 @@ func gtri(a, b, c int, in registers) registers {
 }
 
 func gtriEmit(a, b, c int) string {
-	return fmt.Sprintf("out := 0\nif r%d > %d {\n\tout = 1\n} r%d = out", a, b, c)
+	return fmt.Sprintf("out := int64(0)\nif r%d > %d {\n\tout = 1\n} r%d = out", a, b, c)
 }
 
 func gtrr(a, b, c int, in registers) registers {
@@ -178,7 +178,7 @@ func gtrr(a, b, c int, in registers) registers {
 }
 
 func gtrrEmit(a, b, c int) string {
-	return fmt.Sprintf("out := 0\nif r%d > r%d {\n\tout = 1\n} \n  r%d = out", a, b, c)
+	return fmt.Sprintf("out := int64(0)\nif r%d > r%d {\n\tout = 1\n} \n  r%d = out", a, b, c)
 }
 
 func eqir(a, b, c int, in registers) registers {
@@ -191,7 +191,7 @@ func eqir(a, b, c int, in registers) registers {
 }
 
 func eqirEmit(a, b, c int) string {
-	return fmt.Sprintf("out := 0\nif %d == r%d {\n\tout = 1\n} \n r%d = out", a, b, c)
+	return fmt.Sprintf("out := int64(0)\nif %d == r%d {\n\tout = 1\n} \n r%d = out", a, b, c)
 }
 
 func eqri(a, b, c int, in registers) registers {
@@ -204,7 +204,7 @@ func eqri(a, b, c int, in registers) registers {
 }
 
 func eqriEmit(a, b, c int) string {
-	return fmt.Sprintf("out := 0\nif r%d == %d {\n\tout = 1\n} \n r%d = out", a, b, c)
+	return fmt.Sprintf("out := int64(0)\nif r%d == %d {\n\tout = 1\n} \n r%d = out", a, b, c)
 }
 
 func eqrr(a, b, c int, in registers) registers {
@@ -217,7 +217,7 @@ func eqrr(a, b, c int, in registers) registers {
 }
 
 func eqrrEmit(a, b, c int) string {
-	return fmt.Sprintf("out := 0\nif r%d == r%d {\n\tout = 1\n} \n r%d = out", a, b, c)
+	return fmt.Sprintf("out := int64(0)\nif r%d == r%d {\n\tout = 1\n} \n r%d = out", a, b, c)
 }
 
 var opMap = map[string]opFunc{
@@ -288,36 +288,70 @@ func main() {
 
 	log.Printf("Part1: %d", reg[0])
 
-	fmt.Printf("package main\nfunc main() {\n")
+	fmt.Println("package main")
 	for i := 0; i < regCount; i++ {
-		fmt.Printf("var r%d int\n", i)
+		fmt.Printf("var r%d int64\n", i)
 
 	}
-	fmt.Println("n := 0")
+
+	fmt.Println("\nfunc main() {\n")
+	fmt.Println("profile()")
 	fmt.Printf("for r%d >= 0 && r%d < %d {\n", ip, ip, len(ins))
-	fmt.Println("n++\nif n % 1000000000 == 0 { ")
-	fmt.Println("fmt.Printf(\"%d: %d %d %d %d %d %d\\n\", n, r0, r1, r2, r3, r4, r5)\n}\n")
 
 	fmt.Printf("switch r%d {\n", ip)
 
 	for i := 0; i < len(ins); i++ {
 		fmt.Printf("// %s\n", ins[i].in)
 		fmt.Printf("case %d:\n", i)
+		fmt.Printf("invoke%d()\n", i)
+	}
+
+	fmt.Printf("\n}\n}\nfmt.Printf(\"Output: %%d\", r0)\n}\n")
+
+	for i := 0; i < len(ins); i++ {
+		fmt.Printf("func invoke%d() {\n", i)
 		for j := i; j < len(ins); j++ {
+			fmt.Printf("// %s\n", ins[j].in)
 			fmt.Printf("%s\n", ins[j].emitOp())
-			fmt.Printf("r%d++ // %d \n", ip, j+1)
 			if ins[j].c == ip {
 				if ins[j].opStr == "seti" {
 					j = ins[j].a
 				} else if ins[j].opStr == "addi" && ins[j].a == ip {
-					j += ins[j].b
+					j += ins[i].b
 				} else {
+					fmt.Printf("r%d++ // %d\n", ip, j+1)
 					break
 				}
 			}
+			fmt.Printf("r%d++ // %d\n", ip, j+1)
+		}
+		fmt.Println("}\n")
+	}
+	/*		if ins[j].c == ip {
+			if ins[j].opStr == "seti" {
+				j = ins[j].a
+			} else if ins[j].opStr == "addi" && ins[j].a == ip {
+				j += ins[j].b
+			} else {
+				break
+			}
 		}
 	}
-	fmt.Printf("\n}\n}\nfmt.Printf(\"Output: %%d\", r0)\n}\n")
+
+	for j := i; j < len(ins); j++ {
+		fmt.Printf("")
+		fmt.Printf("%s\n", ins[j].emitOp())
+		fmt.Printf("r%d++ // %d \n", ip, j+1)
+		if ins[j].c == ip {
+			if ins[j].opStr == "seti" {
+				j = ins[j].a
+			} else if ins[j].opStr == "addi" && ins[j].a == ip {
+				j += ins[j].b
+			} else {
+				break
+			}
+		}
+	}*/
 }
 
 func parseInstruction(s string) instruction {
