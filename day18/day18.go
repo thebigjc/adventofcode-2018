@@ -83,14 +83,6 @@ func scoreYard(yd yard) int {
 }
 
 func main() {
-	/*	f, err := os.OpenFile("log.txt", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
-		if err != nil {
-			panic(err)
-		}
-		defer f.Close()
-
-		log.SetOutput(f)
-	*/
 	bs, err := ioutil.ReadFile("day18.txt")
 	if err != nil {
 		panic(err)
